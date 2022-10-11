@@ -11,6 +11,8 @@
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "dependencies": {
+    "@emotion/react": "^11.10.4",
+    "@emotion/styled": "^11.10.4",
     "@loadable/component": "^5.15.2",
     "@types/react": "^18.0.21",
     "@types/react-dom": "^18.0.6",
