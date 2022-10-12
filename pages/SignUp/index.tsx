@@ -33,7 +33,7 @@ const SignUp = () => {
       if (!mismatchError) {
         console.log('회원가입');
         axios
-          .post('http://localhost:3095/api/users', { email, nickname, password })
+          .post('/api/users', { email, nickname, password })
           .then((response) => {
             console.log(response);
           })
