@@ -1,5 +1,6 @@
 import useInput from '@hooks/useInput';
 import { Button, Error, Form, Header, Input, Label, LinkContainer, Success } from '@pages/SignUp/styles';
+import axios from 'axios';
 import React, { useCallback, useState } from 'react';
 import { Link } from 'react-router-dom';
 
@@ -31,6 +32,15 @@ const SignUp = () => {
       e.preventDefault();
       if (!mismatchError) {
         console.log('회원가입');
+        axios
+          .post('http://localhost:3095/api/users', { email, nickname, password })
+          .then((response) => {
+            console.log(response);
+          })
+          .catch((error) => {
+            console.log(error.response);
+          })
+          .finally(() => {});
       }
     },
     [email, nickname, password, passwordCheck],
