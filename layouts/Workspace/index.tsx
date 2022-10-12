@@ -2,7 +2,7 @@ import fetcher from '@utils/fetcher';
 import axios from 'axios';
 import React, { FC, useCallback } from 'react';
 import useSWR from 'swr';
-import { Navigate } from 'react-router-dom';
+import { Navigate, Outlet } from 'react-router-dom';
 import {
   Channels,
   Chats,
@@ -50,9 +50,10 @@ const Workspace: FC<Props> = ({ children }) => {
           <WorkspaceName>Slack</WorkspaceName>
           <MenuScroll>menu scroll</MenuScroll>
         </Channels>
-        <Chats>Chats</Chats>
+        <Chats>
+          <Outlet />
+        </Chats>
       </WorkspaceWrapper>
-      {children}
     </div>
   );
 };
