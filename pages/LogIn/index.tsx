@@ -3,11 +3,11 @@ import { Form, Error, Label, Input, LinkContainer, Button, Header } from '@pages
 import fetcher from '@utils/fetcher';
 import axios from 'axios';
 import React, { useCallback, useState } from 'react';
-import { Link, Route } from 'react-router-dom';
+import { Link, Navigate } from 'react-router-dom';
 import useSWR from 'swr';
 
 const LogIn = () => {
-  const { data, error, mutate } = useSWR('http://localhost:3095/api/users', fetcher, { dedupingInterval: 100000 });
+  const { data, error, mutate } = useSWR('http://localhost:3095/api/users', fetcher);
 
   const [logInError, setLogInError] = useState(false);
   const [email, onChangeEmail] = useInput('');
@@ -34,21 +34,13 @@ const LogIn = () => {
     [email, password],
   );
 
-  console.log(data);
+  if (data === undefined) {
+    return <div>로딩중...</div>;
+  }
 
-  // if (data === undefined) {
-  //   return <div>로딩중...</div>;
-  // }
-
-  // if (data) {
-  //   return <Route path="/workspace/sleact/channel/일반" />;
-  // }
-
-  // console.log(error, userData);
-  // if (!error && userData) {
-  //   console.log('로그인됨', userData);
-  //   return <Redirect to="/workspace/sleact/channel/일반" />;
-  // }
+  if (data) {
+    return <Navigate to="/workspace/channel" replace />;
+  }
 
   return (
     <div id="container">
