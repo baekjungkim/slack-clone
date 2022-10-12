@@ -13,7 +13,9 @@ const Workspace: FC<Props> = ({ children }) => {
 
   const onLogout = useCallback((e: React.MouseEvent<HTMLButtonElement>) => {
     e.preventDefault();
-    axios.post('http://localhost:3095/api/users/logout', null, { withCredentials: true }).then(() => mutate());
+    axios
+      .post('http://localhost:3095/api/users/logout', null, { withCredentials: true })
+      .then(() => mutate(false, false));
   }, []);
 
   if (!data) {
