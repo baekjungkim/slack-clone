@@ -26,6 +26,7 @@ import loadable from '@loadable/component';
 import DMList from '@components/DMList';
 import ChannelList from '@components/ChannelLIst';
 import { useParams } from 'react-router';
+import useSocket from '@hooks/useSocket';
 
 const Menu = loadable(() => import('@components/Menu'));
 const CreateWorkspaceModal = loadable(() => import('@components/CreateWorkspaceModal'));
@@ -41,6 +42,8 @@ const Workspace = () => {
   const [showInviteWorkspaceModal, setShowInviteWorkspaceModal] = useState(false);
   const [showInviteChannelModal, setShowInviteChannelModal] = useState(false);
   const [showWorkspaceMenu, setShowWorkspaceMenu] = useState(false);
+
+  const [socket, disconnect] = useSocket(workspace);
 
   const { data: userData, error, mutate } = useSWR<IUser | false>('/api/users', fetcher);
 
