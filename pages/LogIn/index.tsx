@@ -8,7 +8,7 @@ import { Link, Navigate } from 'react-router-dom';
 import useSWR from 'swr';
 
 const LogIn = () => {
-  const { data: userData, error, mutate } = useSWR<IUser | false>('/api/users', fetcher);
+  const { data: userData, error, mutate } = useSWR<IUser | false>('/api/users', fetcher, { revalidateOnFocus: false });
 
   const [logInError, setLogInError] = useState(false);
   const [email, onChangeEmail] = useInput('');
@@ -35,7 +35,7 @@ const LogIn = () => {
     [email, password],
   );
 
-  if (userData === undefined) {
+  if (!error && userData === undefined) {
     return <div>로딩중...</div>;
   }
 

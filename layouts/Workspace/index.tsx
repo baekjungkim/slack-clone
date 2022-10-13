@@ -34,6 +34,7 @@ const InviteWorkspaceModal = loadable(() => import('@components/InviteWorkpsaceM
 const InviteChannelModal = loadable(() => import('@components/InviteChannelModal'));
 
 const Workspace = () => {
+  const { workspace } = useParams<{ workspace: string }>();
   const [showUserMenu, setShowUserMenu] = useState(false);
   const [showCreateWorkspaceModal, setShowCreateWorkspaceModal] = useState(false);
   const [showCreateChannelModal, setShowCreateChannelModal] = useState(false);
@@ -41,7 +42,6 @@ const Workspace = () => {
   const [showInviteChannelModal, setShowInviteChannelModal] = useState(false);
   const [showWorkspaceMenu, setShowWorkspaceMenu] = useState(false);
 
-  const { workspace } = useParams<{ workspace: string }>();
   const { data: userData, error, mutate } = useSWR<IUser | false>('/api/users', fetcher);
 
   const onLogout = useCallback((e: React.MouseEvent<HTMLButtonElement>) => {
@@ -78,8 +78,12 @@ const Workspace = () => {
     setShowInviteChannelModal(false);
   }, []);
 
-  if (!userData) {
+  if (error) {
     return <Navigate to="/login" replace />;
+  }
+
+  if (!userData) {
+    return <div>로딩중</div>;
   }
 
   return (
@@ -87,11 +91,11 @@ const Workspace = () => {
       <Header>
         <RightMenu>
           <span onClick={onClickUserProfile}>
-            <ProfileImg src={gravatar.url(userData.nickname, { s: '28px', d: 'mp' })} alt={userData.nickname} />
+            <ProfileImg src={gravatar.url(userData.nickname, { s: '28px', d: 'retro' })} alt={userData.nickname} />
             {showUserMenu && (
               <Menu style={{ right: 0, top: 38 }} onCloseMenu={onClickUserProfile}>
                 <ProfileModal>
-                  <img src={gravatar.url(userData.nickname, { s: '36px', d: 'mp' })} alt={userData.nickname} />
+                  <img src={gravatar.url(userData.nickname, { s: '36px', d: 'retro' })} alt={userData.nickname} />
                   <div>
                     <span id="profile-name">{userData.nickname}</span>
                     <span id="profile-active">Active</span>
@@ -115,12 +119,14 @@ const Workspace = () => {
           <AddButton onClick={onClickCreateWorkspace}>+</AddButton>
         </Workspaces>
         <Channels>
-          <WorkspaceName onClick={toggleWorkspaceMenu}>Slack</WorkspaceName>
+          <WorkspaceName onClick={toggleWorkspaceMenu}>
+            {userData?.Workspaces.find((ws) => ws.url === workspace)?.name ?? 'Slack'}
+          </WorkspaceName>
           <MenuScroll>
             {showWorkspaceMenu && (
               <Menu style={{ top: 95, left: 80 }} onCloseMenu={toggleWorkspaceMenu}>
                 <WorkspaceMenu>
-                  <h2>Slack</h2>
+                  <h2>{userData?.Workspaces.find((ws) => ws.url === workspace)?.name ?? 'Slack'}</h2>
                   <button onClick={onClickInviteWorkspace}>워크스페이스에 사용자 초대</button>
                   <button onClick={onClickAddChannel}>채널 만들기</button>
                   <button onClick={onLogout}>로그아웃</button>
