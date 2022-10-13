@@ -14,6 +14,7 @@ import {
   ProfileModal,
   RightMenu,
   WorkspaceButton,
+  WorkspaceMenu,
   WorkspaceName,
   Workspaces,
   WorkspaceWrapper,
@@ -27,11 +28,14 @@ const Channel = loadable(() => import('@pages/Channel'));
 const DirectMessage = loadable(() => import('@pages/DirectMessage'));
 const Menu = loadable(() => import('@components/Menu'));
 const CreateWorkspaceModal = loadable(() => import('@components/CreateWorkspaceModal'));
+const CreateChannelModal = loadable(() => import('@components/CreateChannelModal'));
 
 const Workspace = () => {
   const { data: userData, error, mutate } = useSWR<IUser | false>('http://localhost:3095/api/users', fetcher);
   const [showUserMenu, setShowUserMenu] = useState(false);
   const [showCreateWorkspaceModal, setShowCreateWorkspaceModal] = useState(false);
+  const [showWorkspaceMenu, setShowWorkspaceMenu] = useState(false);
+  const [showCreateChannelModal, setShowCreateChannelModal] = useState(false);
 
   const onLogout = useCallback((e: React.MouseEvent<HTMLButtonElement>) => {
     e.preventDefault();
@@ -47,6 +51,20 @@ const Workspace = () => {
 
   const onClickCreateWorkspace = useCallback(() => {
     setShowCreateWorkspaceModal((prev) => !prev);
+  }, []);
+
+  const toggleWorkspaceMenu = useCallback((e: React.MouseEvent<HTMLElement>) => {
+    e.stopPropagation();
+    setShowWorkspaceMenu((prev) => !prev);
+  }, []);
+
+  const onClickAddChannel = useCallback(() => {
+    setShowCreateChannelModal((prev) => !prev);
+  }, []);
+
+  const onCloseModal = useCallback(() => {
+    setShowCreateWorkspaceModal(false);
+    setShowCreateChannelModal(false);
   }, []);
 
   if (!userData) {
@@ -86,8 +104,18 @@ const Workspace = () => {
           <AddButton onClick={onClickCreateWorkspace}>+</AddButton>
         </Workspaces>
         <Channels>
-          <WorkspaceName>Slack</WorkspaceName>
-          <MenuScroll>menu scroll</MenuScroll>
+          <WorkspaceName onClick={toggleWorkspaceMenu}>Slack</WorkspaceName>
+          <MenuScroll>
+            {showWorkspaceMenu && (
+              <Menu style={{ top: 95, left: 80 }} onCloseMenu={toggleWorkspaceMenu}>
+                <WorkspaceMenu>
+                  <h2>Slack</h2>
+                  <button onClick={onClickAddChannel}>채널 만들기</button>
+                  <button onClick={onLogout}>로그아웃</button>
+                </WorkspaceMenu>
+              </Menu>
+            )}
+          </MenuScroll>
         </Channels>
         <Chats>
           <Routes>
@@ -97,11 +125,20 @@ const Workspace = () => {
           </Routes>
         </Chats>
       </WorkspaceWrapper>
-      <CreateWorkspaceModal
-        show={showCreateWorkspaceModal}
-        onCloseModal={onClickCreateWorkspace}
-        setShowCreateWorkspaceModal={setShowCreateWorkspaceModal}
-      />
+      {showCreateWorkspaceModal && (
+        <CreateWorkspaceModal
+          show={showCreateWorkspaceModal}
+          onCloseModal={onCloseModal}
+          setShowCreateWorkspaceModal={setShowCreateWorkspaceModal}
+        />
+      )}
+      {showCreateChannelModal && (
+        <CreateChannelModal
+          show={showCreateChannelModal}
+          onCloseModal={onCloseModal}
+          setShowCreateChannelModal={setShowCreateChannelModal}
+        />
+      )}
     </div>
   );
 };
