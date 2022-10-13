@@ -2,7 +2,7 @@ import fetcher from '@utils/fetcher';
 import axios from 'axios';
 import React, { useCallback, useState } from 'react';
 import useSWR from 'swr';
-import { Navigate, Route, Routes, useParams } from 'react-router-dom';
+import { Navigate, Outlet } from 'react-router-dom';
 import {
   AddButton,
   Channels,
@@ -21,11 +21,12 @@ import {
 } from '@layouts/Workspace/styles';
 import gravatar from 'gravatar';
 import { Link } from 'react-router-dom';
-import { IChannel, IUser } from '@typings/db';
+import { IUser } from '@typings/db';
 import loadable from '@loadable/component';
+import DMList from '@components/DMList';
+import ChannelList from '@components/ChannelLIst';
+import { useParams } from 'react-router';
 
-const Channel = loadable(() => import('@pages/Channel'));
-const DirectMessage = loadable(() => import('@pages/DirectMessage'));
 const Menu = loadable(() => import('@components/Menu'));
 const CreateWorkspaceModal = loadable(() => import('@components/CreateWorkspaceModal'));
 const CreateChannelModal = loadable(() => import('@components/CreateChannelModal'));
@@ -42,8 +43,6 @@ const Workspace = () => {
 
   const { workspace } = useParams<{ workspace: string }>();
   const { data: userData, error, mutate } = useSWR<IUser | false>('/api/users', fetcher);
-  const { data: channelData } = useSWR<IChannel[]>(userData ? `/api/workspaces/${workspace}/channels` : null, fetcher);
-  const { data: memberData } = useSWR<IUser[]>(userData ? `/api/workspaces/${workspace}/members` : null, fetcher);
 
   const onLogout = useCallback((e: React.MouseEvent<HTMLButtonElement>) => {
     e.preventDefault();
@@ -70,9 +69,6 @@ const Workspace = () => {
 
   const onClickInviteWorkspace = useCallback(() => {
     setShowInviteWorkspaceModal((prev) => !prev);
-  }, []);
-  const onClickInviteChannel = useCallback(() => {
-    setShowInviteChannelModal((prev) => !prev);
   }, []);
 
   const onCloseModal = useCallback(() => {
@@ -125,22 +121,18 @@ const Workspace = () => {
               <Menu style={{ top: 95, left: 80 }} onCloseMenu={toggleWorkspaceMenu}>
                 <WorkspaceMenu>
                   <h2>Slack</h2>
+                  <button onClick={onClickInviteWorkspace}>워크스페이스에 사용자 초대</button>
                   <button onClick={onClickAddChannel}>채널 만들기</button>
                   <button onClick={onLogout}>로그아웃</button>
                 </WorkspaceMenu>
               </Menu>
             )}
-            {channelData?.map((channel) => (
-              <div key={channel.id}>{channel.name}</div>
-            ))}
+            <ChannelList />
+            <DMList />
           </MenuScroll>
         </Channels>
         <Chats>
-          <Routes>
-            <Route index element={<Channel />} />
-            <Route path="/channel/:channel" element={<Channel />} />
-            <Route path="/dm/:id" element={<DirectMessage />} />
-          </Routes>
+          <Outlet />
         </Chats>
       </WorkspaceWrapper>
       <CreateWorkspaceModal
