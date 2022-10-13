@@ -29,12 +29,16 @@ const DirectMessage = loadable(() => import('@pages/DirectMessage'));
 const Menu = loadable(() => import('@components/Menu'));
 const CreateWorkspaceModal = loadable(() => import('@components/CreateWorkspaceModal'));
 const CreateChannelModal = loadable(() => import('@components/CreateChannelModal'));
+const InviteWorkspaceModal = loadable(() => import('@components/InviteWorkpsaceModal'));
+const InviteChannelModal = loadable(() => import('@components/InviteChannelModal'));
 
 const Workspace = () => {
   const [showUserMenu, setShowUserMenu] = useState(false);
   const [showCreateWorkspaceModal, setShowCreateWorkspaceModal] = useState(false);
-  const [showWorkspaceMenu, setShowWorkspaceMenu] = useState(false);
   const [showCreateChannelModal, setShowCreateChannelModal] = useState(false);
+  const [showInviteWorkspaceModal, setShowInviteWorkspaceModal] = useState(false);
+  const [showInviteChannelModal, setShowInviteChannelModal] = useState(false);
+  const [showWorkspaceMenu, setShowWorkspaceMenu] = useState(false);
 
   const { workspace } = useParams<{ workspace: string }>();
   const { data: userData, error, mutate } = useSWR<IUser | false>('http://localhost:3095/api/users', fetcher);
@@ -68,12 +72,19 @@ const Workspace = () => {
     setShowCreateChannelModal((prev) => !prev);
   }, []);
 
+  const onClickInviteWorkspace = useCallback(() => {
+    setShowInviteWorkspaceModal((prev) => !prev);
+  }, []);
+  const onClickInviteChannel = useCallback(() => {
+    setShowInviteChannelModal((prev) => !prev);
+  }, []);
+
   const onCloseModal = useCallback(() => {
     setShowCreateWorkspaceModal(false);
     setShowCreateChannelModal(false);
+    setShowInviteWorkspaceModal(false);
+    setShowInviteChannelModal(false);
   }, []);
-
-  console.log(channelData);
 
   if (!userData) {
     return <Navigate to="/login" replace />;
@@ -136,20 +147,26 @@ const Workspace = () => {
           </Routes>
         </Chats>
       </WorkspaceWrapper>
-      {showCreateWorkspaceModal && (
-        <CreateWorkspaceModal
-          show={showCreateWorkspaceModal}
-          onCloseModal={onCloseModal}
-          setShowCreateWorkspaceModal={setShowCreateWorkspaceModal}
-        />
-      )}
-      {showCreateChannelModal && (
-        <CreateChannelModal
-          show={showCreateChannelModal}
-          onCloseModal={onCloseModal}
-          setShowCreateChannelModal={setShowCreateChannelModal}
-        />
-      )}
+      <CreateWorkspaceModal
+        show={showCreateWorkspaceModal}
+        onCloseModal={onCloseModal}
+        setShowCreateWorkspaceModal={setShowCreateWorkspaceModal}
+      />
+      <CreateChannelModal
+        show={showCreateChannelModal}
+        onCloseModal={onCloseModal}
+        setShowCreateChannelModal={setShowCreateChannelModal}
+      />
+      <InviteWorkspaceModal
+        show={showInviteWorkspaceModal}
+        onCloseModal={onCloseModal}
+        setShowInviteWorkspaceModal={setShowInviteWorkspaceModal}
+      />
+      <InviteChannelModal
+        show={showInviteChannelModal}
+        onCloseModal={onCloseModal}
+        setShowInviteChannelModal={setShowInviteChannelModal}
+      />
     </div>
   );
 };

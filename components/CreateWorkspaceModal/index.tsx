@@ -15,7 +15,7 @@ interface Props {
 }
 
 const CreateWorkspaceModal: FC<Props> = ({ show, onCloseModal, setShowCreateWorkspaceModal }) => {
-  const { mutate: userDataMutate } = useSWR<IUser | false>('http://localhost:3095/api/users', fetcher);
+  const { mutate: userDataMutate } = useSWR<IUser | false>(show ? 'http://localhost:3095/api/users' : null, fetcher);
   const [newWorkspaceName, onChangeNewWorkspaceName, setNewWorkspaceName] = useInput('');
   const [newWorkspaceUrl, onChangeNewWorkspaceUrl, setNewWorkspaceUrl] = useInput('');
 

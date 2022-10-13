@@ -20,7 +20,7 @@ const CreateChannelModal: FC<Props> = ({ show, onCloseModal, setShowCreateChanne
   const { workspace } = useParams<{ workspace: string }>();
   const { data: userData } = useSWR<IUser | false>('http://localhost:3095/api/users', fetcher);
   const { mutate: channelMudate } = useSWR<IChannel[]>(
-    userData ? `http://localhost:3095/api/workspaces/${workspace}/channels` : null,
+    userData && show ? `http://localhost:3095/api/workspaces/${workspace}/channels` : null,
     fetcher,
   );
 
