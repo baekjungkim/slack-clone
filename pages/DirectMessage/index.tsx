@@ -1,16 +1,27 @@
 import { Container, Header } from '@pages/DirectMessage/styles';
-import React from 'react';
+import React, { useCallback } from 'react';
 import gravatar from 'gravatar';
 import useSWR from 'swr';
 import { IUser } from '@typings/db';
 import fetcher from '@utils/fetcher';
-import { useParams, useNavigate } from 'react-router';
+import { useParams } from 'react-router';
+import ChatBox from '@components/ChatBox';
+import ChatList from '@components/ChatList';
+import useInput from '@hooks/useInput';
 
 const DirectMessage = () => {
-  const navigate = useNavigate();
   const { workspace, id } = useParams<{ workspace: string; id: string }>();
   const { data: userData, error } = useSWR<IUser | false>(`/api/workspaces/${workspace}/members/${id}`, fetcher);
   const { data: myData } = useSWR<IUser | false>('/api/users', fetcher);
+  const [chat, onChangeChat, setChat] = useInput('');
+  const onChatSubmit = useCallback(
+    (e: React.FormEvent) => {
+      e.preventDefault();
+      if (!chat) return '';
+      setChat('');
+    },
+    [chat],
+  );
 
   if (!userData || !myData) {
     return null;
@@ -25,8 +36,8 @@ const DirectMessage = () => {
           {userData.id === myData.id ? '(나)' : ''}
         </span>
       </Header>
-      {/* <ChatList /> */}
-      {/* <ChatBox /> */}
+      <ChatList />
+      <ChatBox chat={chat} onChangeChat={onChangeChat} onChatSubmit={onChatSubmit} />
     </Container>
   );
 };

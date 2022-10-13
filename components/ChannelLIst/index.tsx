@@ -7,7 +7,7 @@ import { NavLink } from 'react-router-dom';
 import useSWR from 'swr';
 
 const ChannelList = () => {
-  const { workspace } = useParams<{ workspace: string; channel: string }>();
+  const { workspace, channel } = useParams<{ workspace: string; channel: string }>();
   const { data: userData } = useSWR<IUser | false>('/api/users', fetcher);
   const { data: channelData } = useSWR<IChannel[]>(userData ? `/api/workspaces/${workspace}/channels` : null, fetcher);
   const [channelCollapse, setChannelCollapse] = useState(false);
@@ -34,7 +34,7 @@ const ChannelList = () => {
             return (
               <NavLink
                 key={c.name}
-                className={({ isActive }) => (isActive ? 'selected' : '')}
+                className={channel === c.name ? 'selected' : ''}
                 to={`/workspace/${workspace}/channel/${c.name}`}
               >
                 <span># {c.name}</span>
