@@ -44,10 +44,13 @@ const Workspace = () => {
 
   const { data: userData, error, mutate } = useSWR<IUser | false>('/api/users', fetcher);
 
-  const onLogout = useCallback((e: React.MouseEvent<HTMLButtonElement>) => {
-    e.preventDefault();
-    axios.post('/api/users/logout', null, { withCredentials: true }).then(() => mutate(false, false));
-  }, []);
+  const onLogout = useCallback(
+    (e: React.MouseEvent<HTMLButtonElement>) => {
+      e.preventDefault();
+      axios.post('/api/users/logout', null, { withCredentials: true }).then(() => mutate(false, false));
+    },
+    [mutate],
+  );
 
   const onClickUserProfile = useCallback((e: React.MouseEvent<HTMLElement>) => {
     e.stopPropagation();

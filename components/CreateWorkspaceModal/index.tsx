@@ -37,7 +37,14 @@ const CreateWorkspaceModal: FC<Props> = ({ show, onCloseModal, setShowCreateWork
           toast.error(error.response?.data, { position: 'top-center' });
         });
     },
-    [newWorkspaceName, newWorkspaceUrl],
+    [
+      newWorkspaceName,
+      newWorkspaceUrl,
+      setNewWorkspaceName,
+      setNewWorkspaceUrl,
+      setShowCreateWorkspaceModal,
+      userDataMutate,
+    ],
   );
 
   return (

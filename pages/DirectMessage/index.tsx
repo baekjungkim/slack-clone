@@ -2,25 +2,46 @@ import { Container, Header } from '@pages/DirectMessage/styles';
 import React, { useCallback } from 'react';
 import gravatar from 'gravatar';
 import useSWR from 'swr';
-import { IUser } from '@typings/db';
+import useSWRInfinite from 'swr/infinite';
+import { IUser, IDM } from '@typings/db';
 import fetcher from '@utils/fetcher';
 import { useParams } from 'react-router';
 import ChatBox from '@components/ChatBox';
 import ChatList from '@components/ChatList';
 import useInput from '@hooks/useInput';
+import axios from 'axios';
+import { toast } from 'react-toastify';
 
 const DirectMessage = () => {
   const { workspace, id } = useParams<{ workspace: string; id: string }>();
-  const { data: userData, error } = useSWR<IUser | false>(`/api/workspaces/${workspace}/members/${id}`, fetcher);
+  const { data: userData } = useSWR<IUser | false>(`/api/workspaces/${workspace}/members/${id}`, fetcher);
   const { data: myData } = useSWR<IUser | false>('/api/users', fetcher);
+  const {
+    data: chatData,
+    mutate: chatMutate,
+    setSize,
+  } = useSWRInfinite<IDM[]>(
+    (index) => `/api/workspaces/${workspace}/dms/${id}/chats?perPage=20&page=${index + 1}`,
+    fetcher,
+  );
+
   const [chat, onChangeChat, setChat] = useInput('');
   const onChatSubmit = useCallback(
     (e: React.FormEvent) => {
       e.preventDefault();
-      if (!chat) return '';
-      setChat('');
+      if (!chat || !chat.trim()) return '';
+      axios
+        .post(`/api/workspaces/${workspace}/dms/${id}/chats`, { content: chat }, { withCredentials: true })
+        .then(() => {
+          chatMutate();
+          setChat('');
+        })
+        .catch((error) => {
+          console.dir(error);
+          toast.error(error.response?.data, { position: 'top-center' });
+        });
     },
-    [chat],
+    [chat, chatMutate, id, setChat, workspace],
   );
 
   if (!userData || !myData) {

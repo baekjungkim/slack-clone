@@ -32,7 +32,7 @@ const LogIn = () => {
           setLogInError(error.response?.data?.statusCode === 401);
         });
     },
-    [email, password],
+    [email, password, mutate],
   );
 
   if (!error && userData === undefined) {

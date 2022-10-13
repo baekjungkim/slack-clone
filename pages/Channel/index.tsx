@@ -22,7 +22,7 @@ const Channel = () => {
       if (!chat) return '';
       setChat('');
     },
-    [chat],
+    [chat, setChat],
   );
 
   return (

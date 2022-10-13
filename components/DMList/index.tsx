@@ -7,7 +7,7 @@ import { useParams } from 'react-router';
 import useSWR from 'swr';
 
 const DMList = () => {
-  const { workspace, id } = useParams<{ workspace: string; id: string }>();
+  const { workspace } = useParams<{ workspace: string; id: string }>();
   const { data: userData } = useSWR<IUser | false>('/api/users', fetcher);
   const { data: memberData } = useSWR<IUser[]>(userData ? `/api/workspaces/${workspace}/members` : null, fetcher);
 

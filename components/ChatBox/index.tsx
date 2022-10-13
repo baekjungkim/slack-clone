@@ -1,7 +1,7 @@
 import { ChatBoxArea, Form, MentionsTextarea, SendButton, Toolbox } from '@components/ChatBox/styles';
 import React, { FC, useCallback, useEffect, useRef } from 'react';
 import autosize from 'autosize';
-import { Mention, OnChangeHandlerFunc } from 'react-mentions';
+import { Mention } from 'react-mentions';
 import useSWR from 'swr';
 import { IUser } from '@typings/db';
 import fetcher from '@utils/fetcher';

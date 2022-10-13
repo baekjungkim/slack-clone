@@ -7,7 +7,7 @@ import { Link, Navigate } from 'react-router-dom';
 import useSWR from 'swr';
 
 const SignUp = () => {
-  const { data, error, mutate } = useSWR('/api/users', fetcher);
+  const { data } = useSWR('/api/users', fetcher);
 
   const [email, onChangeEmail] = useInput('');
   const [nickname, onChangeNickname] = useInput('');
@@ -22,14 +22,14 @@ const SignUp = () => {
       setPassword(e.target.value);
       setMismatchError(e.target.value !== passwordCheck);
     },
-    [passwordCheck],
+    [passwordCheck, setPassword],
   );
   const onChangePasswordCheck = useCallback(
     (e: React.ChangeEvent<HTMLInputElement>) => {
       setPasswordCheck(e.target.value);
       setMismatchError(e.target.value !== password);
     },
-    [password],
+    [password, setPasswordCheck],
   );
   const onSubmit = useCallback(
     (e: React.FormEvent) => {
@@ -48,7 +48,7 @@ const SignUp = () => {
           .finally(() => {});
       }
     },
-    [email, nickname, password, passwordCheck],
+    [email, nickname, password, mismatchError],
   );
 
   if (data === undefined) {

@@ -16,7 +16,7 @@ interface Props {
 }
 
 const CreateChannelModal: FC<Props> = ({ show, onCloseModal, setShowCreateChannelModal }) => {
-  const [newChannelName, onChangeNewChannelName, setnewChannelName] = useInput('');
+  const [newChannelName, onChangeNewChannelName, setNewChannelName] = useInput('');
   const { workspace } = useParams<{ workspace: string }>();
   const { data: userData } = useSWR<IUser | false>('/api/users', fetcher);
   const { mutate: channelMudate } = useSWR<IChannel[]>(
@@ -33,14 +33,14 @@ const CreateChannelModal: FC<Props> = ({ show, onCloseModal, setShowCreateChanne
         .then(() => {
           channelMudate();
           setShowCreateChannelModal(false);
-          setnewChannelName('');
+          setNewChannelName('');
         })
         .catch((error) => {
           console.dir(error);
           toast.error(error.response?.data, { position: 'top-center' });
         });
     },
-    [newChannelName],
+    [newChannelName, channelMudate, setShowCreateChannelModal, setNewChannelName, workspace],
   );
 
   return (

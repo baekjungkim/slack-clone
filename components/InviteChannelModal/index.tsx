@@ -44,7 +44,7 @@ const InviteChannelModal: FC<Props> = ({ show, onCloseModal, setShowInviteChanne
           toast.error(error.response?.data, { position: 'top-center' });
         });
     },
-    [inviteUserEmail],
+    [inviteUserEmail, channel, memebrMutate, setInviteUserEmale, setShowInviteChannelModal, workspace],
   );
 
   return (
