@@ -2,7 +2,7 @@ import fetcher from '@utils/fetcher';
 import axios from 'axios';
 import React, { useCallback, useState } from 'react';
 import useSWR from 'swr';
-import { Navigate, Route, Routes } from 'react-router-dom';
+import { Navigate, Route, Routes, useParams } from 'react-router-dom';
 import {
   AddButton,
   Channels,
@@ -21,7 +21,7 @@ import {
 } from '@layouts/Workspace/styles';
 import gravatar from 'gravatar';
 import { Link } from 'react-router-dom';
-import { IUser } from '@typings/db';
+import { IChannel, IUser } from '@typings/db';
 import loadable from '@loadable/component';
 
 const Channel = loadable(() => import('@pages/Channel'));
@@ -31,11 +31,17 @@ const CreateWorkspaceModal = loadable(() => import('@components/CreateWorkspaceM
 const CreateChannelModal = loadable(() => import('@components/CreateChannelModal'));
 
 const Workspace = () => {
-  const { data: userData, error, mutate } = useSWR<IUser | false>('http://localhost:3095/api/users', fetcher);
   const [showUserMenu, setShowUserMenu] = useState(false);
   const [showCreateWorkspaceModal, setShowCreateWorkspaceModal] = useState(false);
   const [showWorkspaceMenu, setShowWorkspaceMenu] = useState(false);
   const [showCreateChannelModal, setShowCreateChannelModal] = useState(false);
+
+  const { workspace } = useParams<{ workspace: string }>();
+  const { data: userData, error, mutate } = useSWR<IUser | false>('http://localhost:3095/api/users', fetcher);
+  const { data: channelData } = useSWR<IChannel[]>(
+    userData ? `http://localhost:3095/api/workspaces/${workspace}/channels` : null,
+    fetcher,
+  );
 
   const onLogout = useCallback((e: React.MouseEvent<HTMLButtonElement>) => {
     e.preventDefault();
@@ -67,6 +73,8 @@ const Workspace = () => {
     setShowCreateChannelModal(false);
   }, []);
 
+  console.log(channelData);
+
   if (!userData) {
     return <Navigate to="/login" replace />;
   }
@@ -94,9 +102,9 @@ const Workspace = () => {
       </Header>
       <WorkspaceWrapper>
         <Workspaces>
-          {userData?.Workspaces.map((ws: any) => {
+          {userData?.Workspaces.map((ws) => {
             return (
-              <Link key={ws.id} to={`/workspace/${ws.id}/channel/일반`}>
+              <Link key={ws.id} to={`/workspace/${ws.url}/channel/일반`}>
                 <WorkspaceButton>{ws.name.slice(0, 1).toUpperCase()}</WorkspaceButton>
               </Link>
             );
@@ -115,6 +123,9 @@ const Workspace = () => {
                 </WorkspaceMenu>
               </Menu>
             )}
+            {channelData?.map((channel) => (
+              <div key={channel.id}>{channel.name}</div>
+            ))}
           </MenuScroll>
         </Channels>
         <Chats>

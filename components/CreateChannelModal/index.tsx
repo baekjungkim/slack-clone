@@ -5,7 +5,7 @@ import { IChannel, IUser } from '@typings/db';
 import fetcher from '@utils/fetcher';
 import axios from 'axios';
 import React, { FC, useCallback } from 'react';
-import { useParams } from 'react-router';
+import { useParams } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import useSWR from 'swr';
 

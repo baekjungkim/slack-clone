@@ -1,5 +1,6 @@
 import useInput from '@hooks/useInput';
 import { Form, Error, Label, Input, LinkContainer, Button, Header } from '@pages/SignUp/styles';
+import { IUser } from '@typings/db';
 import fetcher from '@utils/fetcher';
 import axios from 'axios';
 import React, { useCallback, useState } from 'react';
@@ -7,7 +8,7 @@ import { Link, Navigate } from 'react-router-dom';
 import useSWR from 'swr';
 
 const LogIn = () => {
-  const { data, error, mutate } = useSWR('http://localhost:3095/api/users', fetcher);
+  const { data: userData, error, mutate } = useSWR<IUser | false>('http://localhost:3095/api/users', fetcher);
 
   const [logInError, setLogInError] = useState(false);
   const [email, onChangeEmail] = useInput('');
@@ -24,8 +25,8 @@ const LogIn = () => {
             withCredentials: true,
           },
         )
-        .then((response) => {
-          mutate(response.data, false);
+        .then(() => {
+          mutate();
         })
         .catch((error) => {
           setLogInError(error.response?.data?.statusCode === 401);
@@ -34,12 +35,12 @@ const LogIn = () => {
     [email, password],
   );
 
-  if (data === undefined) {
+  if (userData === undefined) {
     return <div>로딩중...</div>;
   }
 
-  if (data) {
-    return <Navigate to="/workspace/channel" replace />;
+  if (userData) {
+    return <Navigate to={`/workspace/${userData?.Workspaces[0].url}/channel/일반`} replace />;
   }
 
   return (
