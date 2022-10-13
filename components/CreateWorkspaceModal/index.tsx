@@ -15,7 +15,7 @@ interface Props {
 }
 
 const CreateWorkspaceModal: FC<Props> = ({ show, onCloseModal, setShowCreateWorkspaceModal }) => {
-  const { mutate: userDataMutate } = useSWR<IUser | false>(show ? 'http://localhost:3095/api/users' : null, fetcher);
+  const { mutate: userDataMutate } = useSWR<IUser | false>(show ? '/api/users' : null, fetcher);
   const [newWorkspaceName, onChangeNewWorkspaceName, setNewWorkspaceName] = useInput('');
   const [newWorkspaceUrl, onChangeNewWorkspaceUrl, setNewWorkspaceUrl] = useInput('');
 
@@ -25,11 +25,7 @@ const CreateWorkspaceModal: FC<Props> = ({ show, onCloseModal, setShowCreateWork
       if (!newWorkspaceName || !newWorkspaceName.trim()) return;
       if (!newWorkspaceUrl || !newWorkspaceUrl.trim()) return;
       axios
-        .post(
-          'http://localhost:3095/api/workspaces',
-          { workspace: newWorkspaceName, url: newWorkspaceUrl },
-          { withCredentials: true },
-        )
+        .post('/api/workspaces', { workspace: newWorkspaceName, url: newWorkspaceUrl }, { withCredentials: true })
         .then(() => {
           userDataMutate();
           setShowCreateWorkspaceModal(false);

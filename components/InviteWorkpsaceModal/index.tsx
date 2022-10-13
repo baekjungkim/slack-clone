@@ -18,9 +18,9 @@ interface Props {
 const InviteWorkspaceModal: FC<Props> = ({ show, onCloseModal, setShowInviteWorkspaceModal }) => {
   const [inviteUserEmail, onChangeinviteUserEmail, setInviteUserEmale] = useInput('');
   const { workspace } = useParams<{ workspace: string }>();
-  const { data: userData } = useSWR<IUser | false>('http://localhost:3095/api/users', fetcher);
+  const { data: userData } = useSWR<IUser | false>('/api/users', fetcher);
   const { mutate: memebrMutate } = useSWR<IUser[]>(
-    userData && show ? `http://localhost:3095/api/workspaces/${workspace}/members` : null,
+    userData && show ? `/api/workspaces/${workspace}/members` : null,
     fetcher,
   );
 
@@ -29,11 +29,7 @@ const InviteWorkspaceModal: FC<Props> = ({ show, onCloseModal, setShowInviteWork
       e.preventDefault();
       if (!inviteUserEmail || !inviteUserEmail.trim()) return;
       axios
-        .post(
-          `http://localhost:3095/api/workspaces/${workspace}/members`,
-          { email: inviteUserEmail },
-          { withCredentials: true },
-        )
+        .post(`/api/workspaces/${workspace}/members`, { email: inviteUserEmail }, { withCredentials: true })
         .then(() => {
           memebrMutate();
           setShowInviteWorkspaceModal(false);

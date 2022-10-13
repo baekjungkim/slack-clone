@@ -7,7 +7,7 @@ import { Link, Navigate } from 'react-router-dom';
 import useSWR from 'swr';
 
 const SignUp = () => {
-  const { data, error, mutate } = useSWR('http://localhost:3095/api/users', fetcher);
+  const { data, error, mutate } = useSWR('/api/users', fetcher);
 
   const [email, onChangeEmail] = useInput('');
   const [nickname, onChangeNickname] = useInput('');
@@ -38,7 +38,7 @@ const SignUp = () => {
         setSignUpError('');
         setSignUpSuccess(false);
         axios
-          .post('http://localhost:3095/api/users', { email, nickname, password })
+          .post('/api/users', { email, nickname, password })
           .then((response) => {
             setSignUpSuccess(response.data);
           })
