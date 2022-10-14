@@ -1,6 +1,6 @@
 import fetcher from '@utils/fetcher';
 import axios from 'axios';
-import React, { useCallback, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import useSWR from 'swr';
 import { Navigate, Outlet } from 'react-router-dom';
 import {
@@ -21,7 +21,7 @@ import {
 } from '@layouts/Workspace/styles';
 import gravatar from 'gravatar';
 import { Link } from 'react-router-dom';
-import { IUser } from '@typings/db';
+import { IChannel, IUser } from '@typings/db';
 import loadable from '@loadable/component';
 import DMList from '@components/DMList';
 import ChannelList from '@components/ChannelLIst';
@@ -43,9 +43,19 @@ const Workspace = () => {
   const [showInviteChannelModal, setShowInviteChannelModal] = useState(false);
   const [showWorkspaceMenu, setShowWorkspaceMenu] = useState(false);
 
-  const [socket, disconnect] = useSocket(workspace);
-
   const { data: userData, error, mutate } = useSWR<IUser | false>('/api/users', fetcher);
+  const { data: channelData } = useSWR<IChannel[]>(userData ? `/api/workspaces/${workspace}/channels` : null, fetcher);
+  const [socket, disconnect] = useSocket(workspace);
+  useEffect(() => {
+    if (socket && userData && channelData) {
+      socket.emit('login', { id: userData.id, channels: channelData.map((v) => v.id) });
+    }
+  }, [socket, userData, channelData]);
+  useEffect(() => {
+    return () => {
+      disconnect();
+    };
+  }, [workspace, disconnect]);
 
   const onLogout = useCallback(
     (e: React.MouseEvent<HTMLButtonElement>) => {
@@ -84,12 +94,8 @@ const Workspace = () => {
     setShowInviteChannelModal(false);
   }, []);
 
-  if (error) {
+  if (!userData || error) {
     return <Navigate to="/login" replace />;
-  }
-
-  if (!userData) {
-    return <div>로딩중</div>;
   }
 
   return (

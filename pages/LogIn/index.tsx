@@ -3,13 +3,16 @@ import { Form, Error, Label, Input, LinkContainer, Button, Header } from '@pages
 import { IUser } from '@typings/db';
 import fetcher from '@utils/fetcher';
 import axios from 'axios';
-import React, { useCallback, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import { Link, Navigate } from 'react-router-dom';
 import useSWR from 'swr';
 
 const LogIn = () => {
-  const { data: userData, error, mutate } = useSWR<IUser | false>('/api/users', fetcher, { revalidateOnFocus: false });
-
+  const {
+    data: userData,
+    error,
+    mutate,
+  } = useSWR<IUser | false>('/api/users', fetcher, { revalidateOnFocus: false, errorRetryCount: 0 });
   const [logInError, setLogInError] = useState(false);
   const [email, onChangeEmail] = useInput('');
   const [password, onChangePassword] = useInput('');
@@ -39,7 +42,7 @@ const LogIn = () => {
     return <div>로딩중...</div>;
   }
 
-  if (userData) {
+  if (!error && userData) {
     return <Navigate to={`/workspace/${userData?.Workspaces[0].url}/channel/일반`} replace />;
   }
 
