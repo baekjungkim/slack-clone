@@ -1,11 +1,12 @@
-import { ChatBoxArea, Form, MentionsTextarea, SendButton, Toolbox } from '@components/ChatBox/styles';
+import { ChatBoxArea, EachMention, Form, MentionsTextarea, SendButton, Toolbox } from '@components/ChatBox/styles';
 import React, { FC, useCallback, useEffect, useRef } from 'react';
 import autosize from 'autosize';
-import { Mention } from 'react-mentions';
+import { Mention, SuggestionDataItem } from 'react-mentions';
 import useSWR from 'swr';
 import { IUser } from '@typings/db';
 import fetcher from '@utils/fetcher';
 import { useParams } from 'react-router';
+import gravatar from 'gravatar';
 
 interface Props {
   chat: string;
@@ -41,6 +42,28 @@ const ChatBox: FC<Props> = ({ chat, onChatSubmit, onChangeChat, placeholder }) =
     [onChatSubmit],
   );
 
+  const renderSuggestion = useCallback(
+    (
+      suggestion: SuggestionDataItem,
+      search: string,
+      highlightedDisplay: React.ReactNode,
+      index: number,
+      focused: boolean,
+    ): React.ReactNode => {
+      if (!memberData) return;
+      return (
+        <EachMention focus={focused}>
+          <img
+            src={gravatar.url(memberData[index].nickname, { s: '20px', d: 'retro' })}
+            alt={memberData[index].nickname}
+          />
+          <span>{highlightedDisplay}</span>
+        </EachMention>
+      );
+    },
+    [memberData],
+  );
+
   return (
     <ChatBoxArea>
       <Form onSubmit={onChatSubmit}>
@@ -54,16 +77,11 @@ const ChatBox: FC<Props> = ({ chat, onChatSubmit, onChangeChat, placeholder }) =
           allowSuggestionsAboveCursor
         >
           <Mention
-            appendSpaceOnAdd
+            // appendSpaceOnAdd
             trigger="@"
-            data={
-              userData
-                ? memberData
-                    ?.filter((member) => member.id !== userData.id)
-                    .map((member) => ({ id: member.id, display: member.nickname })) || []
-                : []
-            }
-            // renderSuggestion={renderSuggestion}
+            data={memberData?.map((member) => ({ id: member.id, display: member.nickname })) || []}
+            renderSuggestion={renderSuggestion}
+            displayTransform={(_, username) => `@${username} `}
           />
         </MentionsTextarea>
         <Toolbox>

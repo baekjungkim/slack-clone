@@ -22,7 +22,9 @@ export const MentionsTextarea = styled(MentionsInput)`
   padding: 8px 9px;
   width: 100%;
   & strong {
-    background: skyblue;
+    color: blue;
+    z-index: 1;
+    position: relative;
   }
   & textarea {
     height: 44px;
