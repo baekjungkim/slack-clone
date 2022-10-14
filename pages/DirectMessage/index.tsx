@@ -41,7 +41,7 @@ const DirectMessage = () => {
           toast.error(error.response?.data, { position: 'top-center' });
         });
     },
-    [chat, chatMutate, id, setChat, workspace],
+    [chat, id, chatMutate, setChat, workspace],
   );
 
   if (!userData || !myData) {
@@ -57,7 +57,7 @@ const DirectMessage = () => {
           {userData.id === myData.id ? '(나)' : ''}
         </span>
       </Header>
-      <ChatList />
+      <ChatList chatData={chatData ? chatData.flat().reverse() : []} />
       <ChatBox chat={chat} onChangeChat={onChangeChat} onChatSubmit={onChatSubmit} />
     </Container>
   );
