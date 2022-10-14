@@ -77,11 +77,11 @@ const ChatBox: FC<Props> = ({ chat, onChatSubmit, onChangeChat, placeholder }) =
           allowSuggestionsAboveCursor
         >
           <Mention
-            // appendSpaceOnAdd
+            appendSpaceOnAdd
             trigger="@"
             data={memberData?.map((member) => ({ id: member.id, display: member.nickname })) || []}
             renderSuggestion={renderSuggestion}
-            displayTransform={(_, username) => `@${username} `}
+            displayTransform={(_, username) => `@${username}`}
           />
         </MentionsTextarea>
         <Toolbox>
