@@ -11,6 +11,7 @@ import ChatList from '@components/ChatList';
 import useInput from '@hooks/useInput';
 import axios from 'axios';
 import { toast } from 'react-toastify';
+import makeSection from '@utils/makeSection';
 
 const DirectMessage = () => {
   const { workspace, id } = useParams<{ workspace: string; id: string }>();
@@ -48,6 +49,8 @@ const DirectMessage = () => {
     return null;
   }
 
+  const chatSections = makeSection(chatData ? [...chatData].flat().reverse() : []);
+
   return (
     <Container>
       <Header>
@@ -57,7 +60,7 @@ const DirectMessage = () => {
           {userData.id === myData.id ? '(나)' : ''}
         </span>
       </Header>
-      <ChatList chatData={chatData ? chatData.flat().reverse() : []} />
+      <ChatList chatSections={chatSections} />
       <ChatBox chat={chat} onChangeChat={onChangeChat} onChatSubmit={onChatSubmit} />
     </Container>
   );
