@@ -1,7 +1,7 @@
 import Chat from '@components/Chat';
 import { ChatListArea, Section, StickyHeader } from '@components/ChatList/styles';
 import { IChat, IDM } from '@typings/db';
-import React, { forwardRef, useCallback } from 'react';
+import React, { forwardRef, MutableRefObject, useCallback } from 'react';
 import { positionValues, Scrollbars } from 'react-custom-scrollbars-2';
 
 interface Props {
@@ -10,21 +10,26 @@ interface Props {
   isReachingEnd: boolean;
 }
 
-const ChatList = forwardRef<Scrollbars, Props>(({ chatSections, setSize, isReachingEnd }, ref) => {
+const ChatList = forwardRef<Scrollbars, Props>(({ chatSections, setSize, isReachingEnd }, scrollRef) => {
   const onScroll = useCallback(
     (values: positionValues) => {
       if (values.scrollTop === 0 && !isReachingEnd) {
-        setSize((prevSize: number) => prevSize + 1).then(() => {
-          // TODO: 스크롤 위치 유지
+        setSize((prevSize) => prevSize + 1).then(() => {
+          setTimeout(() => {
+            const current = (scrollRef as MutableRefObject<Scrollbars>)?.current;
+            if (current) {
+              current.scrollTop(current.getScrollHeight() - values.scrollHeight);
+            }
+          }, 100);
         });
       }
     },
-    [isReachingEnd, setSize],
+    [scrollRef, isReachingEnd, setSize],
   );
 
   return (
     <ChatListArea>
-      <Scrollbars autoHide ref={ref} onScrollFrame={onScroll}>
+      <Scrollbars autoHide ref={scrollRef} onScrollFrame={onScroll}>
         {Object.entries(chatSections).map(([date, chats]) => {
           return (
             <Section className={`section-${date}`} key={date}>

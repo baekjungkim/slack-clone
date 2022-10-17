@@ -36,19 +36,39 @@ const DirectMessage = () => {
   const onChatSubmit = useCallback(
     (e: React.FormEvent) => {
       e.preventDefault();
-      if (!chat || !chat.trim()) return '';
-      axios
-        .post(`/api/workspaces/${workspace}/dms/${id}/chats`, { content: chat }, { withCredentials: true })
-        .then(() => {
-          chatMutate();
+      if (chat?.trim() && chatData && myData && userData) {
+        const savedChat = chat;
+        chatMutate((prevChatData) => {
+          prevChatData?.[0].unshift({
+            id: (chatData[0][0]?.id || 0) + 1,
+            content: savedChat,
+            SenderId: myData.id,
+            Sender: myData,
+            ReceiverId: userData.id,
+            Receiver: userData,
+            createdAt: new Date(),
+          });
+          return prevChatData;
+        }, false).then(() => {
           setChat('');
-        })
-        .catch((error) => {
-          console.dir(error);
-          toast.error(error.response?.data, { position: 'top-center' });
+          // setTimeout(() => {
+          scrollbarRef.current?.scrollToBottom();
+          // }, 100);
         });
+        axios
+          .post(`/api/workspaces/${workspace}/dms/${id}/chats`, {
+            content: chat,
+          })
+          .then(() => {
+            chatMutate();
+          })
+          .catch((error) => {
+            console.dir(error);
+            toast.error(error.response?.data, { position: 'top-center' });
+          });
+      }
     },
-    [chat, id, chatMutate, setChat, workspace],
+    [chat, chatData, id, chatMutate, setChat, workspace, myData, userData],
   );
 
   // 로딩 시 스크롤바 제일 아래로
