@@ -1,5 +1,5 @@
 import { Container, Header } from '@pages/DirectMessage/styles';
-import React, { useCallback } from 'react';
+import React, { useCallback, useEffect, useRef } from 'react';
 import gravatar from 'gravatar';
 import useSWR from 'swr';
 import useSWRInfinite from 'swr/infinite';
@@ -12,6 +12,9 @@ import useInput from '@hooks/useInput';
 import axios from 'axios';
 import { toast } from 'react-toastify';
 import makeSection from '@utils/makeSection';
+import Scrollbars from 'react-custom-scrollbars-2';
+
+const PAGE_SIZE = 20;
 
 const DirectMessage = () => {
   const { workspace, id } = useParams<{ workspace: string; id: string }>();
@@ -22,10 +25,13 @@ const DirectMessage = () => {
     mutate: chatMutate,
     setSize,
   } = useSWRInfinite<IDM[]>(
-    (index) => `/api/workspaces/${workspace}/dms/${id}/chats?perPage=20&page=${index + 1}`,
+    (index) => `/api/workspaces/${workspace}/dms/${id}/chats?perPage=${PAGE_SIZE}&page=${index + 1}`,
     fetcher,
   );
+  const isEmpty = chatData?.[0]?.length === 0;
+  const isReachingEnd = isEmpty || (chatData && chatData[chatData.length - 1]?.length < PAGE_SIZE) || false;
 
+  const scrollbarRef = useRef<Scrollbars>(null);
   const [chat, onChangeChat, setChat] = useInput('');
   const onChatSubmit = useCallback(
     (e: React.FormEvent) => {
@@ -45,6 +51,15 @@ const DirectMessage = () => {
     [chat, id, chatMutate, setChat, workspace],
   );
 
+  // 로딩 시 스크롤바 제일 아래로
+  useEffect(() => {
+    if (chatData?.length === 1) {
+      setTimeout(() => {
+        scrollbarRef.current?.scrollToBottom();
+      }, 100);
+    }
+  }, [chatData]);
+
   if (!userData || !myData) {
     return null;
   }
@@ -60,7 +75,7 @@ const DirectMessage = () => {
           {userData.id === myData.id ? '(나)' : ''}
         </span>
       </Header>
-      <ChatList chatSections={chatSections} />
+      <ChatList chatSections={chatSections} ref={scrollbarRef} setSize={setSize} isReachingEnd={isReachingEnd} />
       <ChatBox chat={chat} onChangeChat={onChangeChat} onChatSubmit={onChatSubmit} />
     </Container>
   );
