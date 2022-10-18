@@ -13,8 +13,9 @@ import { useParams } from 'react-router';
 import useSWR from 'swr';
 import useSWRInfinite from 'swr/infinite';
 import InviteChannelModal from '@components/InviteChannelModal';
+import { toast } from 'react-toastify';
 
-const PAGE_SIZE = 20;
+const PAGE_SIZE = 50;
 
 const Channel = () => {
   const { workspace, channel } = useParams<{ workspace: string; channel: string }>();
@@ -34,13 +35,22 @@ const Channel = () => {
   } = useSWRInfinite<IChat[]>(
     (index) => `/api/workspaces/${workspace}/channels/${channel}/chats?perPage=${PAGE_SIZE}&page=${index + 1}`,
     fetcher,
+    {
+      onSuccess(data) {
+        if (data?.length === 1) {
+          setTimeout(() => {
+            scrollbarRef.current?.scrollToBottom();
+          }, 100);
+        }
+      },
+    },
   );
 
   const [chat, onChangeChat, setChat] = useInput('');
 
   const [socket] = useSocket(workspace);
   const isEmpty = chatData?.[0]?.length === 0;
-  const isReachingEnd = isEmpty || (chatData && chatData[chatData.length - 1]?.length < 20) || false;
+  const isReachingEnd = isEmpty || (chatData && chatData[chatData.length - 1]?.length < PAGE_SIZE) || false;
   const scrollbarRef = useRef<Scrollbars>(null);
   const [showInviteChannelModal, setShowInviteChannelModal] = useState(false);
   const [dragOver, setDragOver] = useState(false);
@@ -62,6 +72,7 @@ const Channel = () => {
           });
           return prevChatData;
         }, false).then(() => {
+          localStorage.setItem(`${workspace}-${channel}`, new Date().getTime().toString());
           setChat('');
           scrollbarRef.current?.scrollToBottom();
         });
@@ -83,7 +94,9 @@ const Channel = () => {
       // id는 상대방 아이디
       if (
         data.Channel.name === channel &&
-        (data.content.startsWith('uploads\\') || (myData && data.UserId !== myData?.id))
+        (data.content.startsWith('uploads\\') ||
+          data.content.startsWith('uploads/') ||
+          (myData && data.UserId !== myData?.id))
       ) {
         mutateChat((chatData) => {
           chatData?.[0].unshift(data);
@@ -97,7 +110,14 @@ const Channel = () => {
               console.log('scrollToBottom!', scrollbarRef.current?.getValues());
               setTimeout(() => {
                 scrollbarRef.current?.scrollToBottom();
-              }, 50);
+              }, 100);
+            } else {
+              toast.success('새 메시지가 도착했습니다.', {
+                onClick() {
+                  scrollbarRef.current?.scrollToBottom();
+                },
+                closeOnClick: true,
+              });
             }
           }
         });
@@ -113,14 +133,9 @@ const Channel = () => {
     };
   }, [socket, onMessage]);
 
-  // 로딩 시 스크롤바 제일 아래로
   useEffect(() => {
-    if (chatData?.length === 1) {
-      setTimeout(() => {
-        scrollbarRef.current?.scrollToBottom();
-      }, 100);
-    }
-  }, [chatData]);
+    localStorage.setItem(`${workspace}-${channel}`, new Date().getTime().toString());
+  }, [workspace, channel]);
 
   const onClickInviteChannel = useCallback(() => {
     setShowInviteChannelModal(true);
@@ -156,6 +171,7 @@ const Channel = () => {
       }
       axios.post(`/api/workspaces/${workspace}/channels/${channel}/images`, formData).then(() => {
         setDragOver(false);
+        localStorage.setItem(`${workspace}-${channel}`, new Date().getTime().toString());
       });
     },
     [workspace, channel],

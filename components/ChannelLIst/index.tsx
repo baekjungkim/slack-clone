@@ -1,13 +1,13 @@
 import { CollapseButton } from '@components/DMList/styles';
+import EachChannel from '@components/EachChannel';
 import { IChannel, IUser } from '@typings/db';
 import fetcher from '@utils/fetcher';
 import React, { useCallback, useState } from 'react';
 import { useParams } from 'react-router';
-import { NavLink } from 'react-router-dom';
 import useSWR from 'swr';
 
 const ChannelList = () => {
-  const { workspace, channel } = useParams<{ workspace: string; channel: string }>();
+  const { workspace } = useParams<{ workspace: string; channel: string }>();
   const { data: userData } = useSWR<IUser | false>('/api/users', fetcher);
   const { data: channelData } = useSWR<IChannel[]>(userData ? `/api/workspaces/${workspace}/channels` : null, fetcher);
   const [channelCollapse, setChannelCollapse] = useState(false);
@@ -30,16 +30,8 @@ const ChannelList = () => {
       </h2>
       <div>
         {!channelCollapse &&
-          channelData?.map((c) => {
-            return (
-              <NavLink
-                key={c.name}
-                className={channel === c.name ? 'selected' : ''}
-                to={`/workspace/${workspace}/channel/${c.name}`}
-              >
-                <span># {c.name}</span>
-              </NavLink>
-            );
+          channelData?.map((channel) => {
+            return <EachChannel key={channel.id} channel={channel} />;
           })}
       </div>
     </>
